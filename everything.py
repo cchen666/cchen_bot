@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 import urllib,urllib2,httplib,cookielib
-#import xml.etree.ElementTree as ET
-import xml.dom.minidom
 from pyquery import PyQuery as pq
 
 
