@@ -27,7 +27,7 @@ if __name__=='__main__':
     cp.read("dummy.conf")
     name = cp.get("global","name")
     url = cp.get("global","url")
-    password = getpass.getpass('Enter password: ')
+    password = getpass.getpass("Enter %s's password: " %name)
     newlogin = login.Login("https://login.salesforce.com/")
     content = newlogin.autologin(url,name,password)
     xmlh = Xmlhandler()
