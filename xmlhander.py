@@ -23,14 +23,23 @@ class Xmlhandler:
 if __name__=='__main__':
 
 # test program 
-    cp = ConfigParser.ConfigParser()
-    cp.read("dummy.conf")
+    cp = ConfigParser.ConfigParser() 
+    cp.read("dummy.conf") # read the config from dummy.conf
     name = cp.get("global","name")
     url = cp.get("global","url")
     password = getpass.getpass("Enter %s's password: " %name)
+
+    # Finishing reading the config
+
+    # Create a newlogin which is an instance of login ( we imported it )
+
     newlogin = login.Login("https://login.salesforce.com/")
+
+    # autologin will return the xml's url
     content = newlogin.autologin(url,name,password)
+    # Create a xmlhandler instance
     xmlh = Xmlhandler()
+    # parser function will help us get the 2-array content and the count of new cases
     array,num = xmlh.parser(content.read().decode("UTF-8"))
     print array
     print num
