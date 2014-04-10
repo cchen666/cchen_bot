@@ -42,8 +42,8 @@ def xmlhandle(h):
 
 
 if __name__=='__main__':
-    name='cchen@redhat.com'
-    password='52myself'
+    name=''
+    password=''
     url='https://na7.salesforce.com/00OA00000056htR'
     h=auto_login_hi(url,name,password)
     report = pq(h.read().decode("UTF-8"))
