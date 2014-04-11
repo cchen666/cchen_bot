@@ -25,8 +25,8 @@ if __name__=='__main__':
 # test program 
     cp = ConfigParser.ConfigParser() 
     cp.read("dummy.conf") # read the config from dummy.conf
-    name = cp.get("global","name")
-    url = cp.get("global","url")
+    name = cp.get("login","name")
+    url = cp.get("login","url")
     password = getpass.getpass("Enter %s's password: " %name)
 
     # Finishing reading the config
