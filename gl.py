@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# A file that is used to save global variable read from configratuion file.
+# A file that is used to save global variable read from configratuion file (dummy.conf).
 
 import ConfigParser
 
