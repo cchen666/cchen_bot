@@ -101,10 +101,11 @@ class LockBot(irc.bot.SingleServerIRCBot):
 		newlogin = login.Login("https://login.salesforce.com/")
 		content = newlogin.autologin(gl.url,gl.name,self.password)
 		xmlh = xmlhandler.Xmlhandler()
-		array,num = xmlh.parser(content.read().decode("UTF-8"))
-		for i in range(1,num+1):
+		array1,num = xmlh.parser(content.read().decode("UTF-8"))
+		del array1[0]
+		array = xmlh.sortarr(array1,1)
+		for i in range(0,num):
 			tmp = '%10s %8s %-12s %s' %(array[i][0],array[i][1],array[i][2],array[i][3])
-			print tmp
 			c.privmsg(self.channel,tmp)
 
 def termhandler(signum, frame):

@@ -4,6 +4,7 @@ from pyquery import PyQuery as pq
 import ConfigParser
 import getpass
 import login
+import string
 
 class Xmlhandler:
     def __init__(self):
@@ -19,6 +20,23 @@ class Xmlhandler:
             self.start +=1
             self.count +=1
         return self.array,self.count # We return two values: the 2-array with the case content and the number of new cases.
+
+
+    def sortarr(self,array,index):
+        '''
+        sort the array. we sort the array according to the index.
+        We copy the index and append it to the first column. 
+        '''
+        num = len(array)
+        for i in range(0,num):
+            array[i].insert(0,array[i][index])
+            array[i][0]=string.atoi(array[i][0].replace(',',''))
+
+        array.sort()
+        for i in range(0,num):
+            print array[i][0]
+            del array[i][0]
+        return array
 
 if __name__=='__main__':
 
