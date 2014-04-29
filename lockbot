@@ -1,0 +1,123 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os
+import signal
+import irc.bot
+import bsddb
+import time
+import string
+import ConfigParser
+import xmlhandler
+import login
+import gl
+import getpass
+
+global botinstance
+botinstance = None
+
+class LockBot(irc.bot.SingleServerIRCBot):
+	def __init__(self, channel, server, nickname):
+		irc.bot.SingleServerIRCBot.__init__(self, [(server, 6667)], nickname, "lockbot-devel")
+		self.VERSION_NAME = "lockbot version 1.0"
+		self.password = getpass.getpass("Enter %s's salesforce password: " %gl.name)
+		self.channel = channel
+
+	def __del__(self):
+		self.savelist()
+		irc.bot.SingleServerIRCBot.__del__(self)
+
+	def on_welcome(self, c, e):
+		c.join(self.channel)
+
+	def on_pubmsg(self, c, e):
+		a = e.arguments[0].split(":", 1)
+		if len(a) > 1 and irc.strings.lower(a[0]) == irc.strings.lower(self.connection.get_nickname()):
+			self.do_command(e, a[1].split())
+		else:
+			a = e.arguments[0].split(",", 1)
+			if len(a) > 1 and irc.strings.lower(a[0]) == irc.strings.lower(self.connection.get_nickname()):
+				self.do_command(e, a[1].split())
+		return
+
+	def do_command(self, e, cmdline):
+		nick = e.source.nick
+		c = self.connection
+		cmd = ""
+		if len(cmdline) > 0:
+			cmd = cmdline[0]
+
+		if cmd == "usage":
+			self.cmd_usage(c)
+		elif cmd == "date":
+			self.cmd_date(c)
+		elif cmd == "add":
+			if len(cmdline) == 4:
+				user=cmdline[1]
+				num=cmdline[2]
+				timeout=cmdline[3]
+				self.add(c,user,num,string.atoi(timeout))
+		elif cmd == "minus":
+			if len(cmdline) == 4:
+				user=cmdline[1]
+				num=cmdline[2]
+				timeout=cmdline[3]
+				self.minus(c,user,num,string.atoi(timeout))
+		elif cmd == "showcases":
+			if len(cmdline) == 3:
+				num=cmdline[1]
+				timeout=cmdline[2]
+				self.showcases(c,string.atoi(num),string.atoi(timeout))
+		else:
+			self.print_invalidmsg(c)
+			
+	def print_invalidmsg(self, c):
+		c.privmsg(self.channel, "Invalid command or arguments")
+		c.privmsg(self.channel, "Run usage command")
+
+	def cmd_date(self,c):
+		date = time.strftime('%Y-%m-%d',time.localtime(time.time()))
+		c.privmsg(self.channel,date)
+
+	def cmd_usage(self, c):
+		c.privmsg(self.channel, self.VERSION_NAME)
+
+	def add(self,c,user,num=0,timeout=5):
+		for n in xrange(0,string.atoi(num)):
+			c.privmsg(self.channel,user+"++")
+			time.sleep(timeout)
+	def minus(self,c,user,num=0,timeout=5):
+		for n in xrange(0,string.atoi(num)):
+			c.privmsg(self.channel,user+"--")
+			time.sleep(timeout)			
+
+	def showcases(self,c,num=1,timeout=5):
+		print "aaa"
+		for n in xrange(0,num):
+			self.showcase(c)
+			time.sleep(timeout)
+	def showcase(self,c):
+		# TODO implement it
+		newlogin = login.Login("https://login.salesforce.com/")
+		content = newlogin.autologin(gl.url,gl.name,self.password)
+		xmlh = xmlhandler.Xmlhandler()
+		array1,num = xmlh.parser(content.read().decode("UTF-8"))
+		del array1[0]
+		array = xmlh.sortarr(array1,1)
+		for i in range(0,num):
+			tmp = '%10s %8s %-12s %s' %(array[i][0],array[i][1],array[i][2],array[i][3])
+			c.privmsg(self.channel,tmp)
+
+def termhandler(signum, frame):
+	print("Terminating lockbot")
+#	global botinstance
+#	botinstance.savelist()
+
+def main():
+	global botinstance
+	botinstance = LockBot(gl.channel, gl.server,gl.nickname)
+#	signal.signal(signal.SIGTERM, termhandler)
+	botinstance.start()
+
+if __name__ == "__main__":
+	main()
