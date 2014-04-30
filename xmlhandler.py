@@ -5,6 +5,7 @@ import ConfigParser
 import getpass
 import login
 import string
+import time
 
 class Xmlhandler:
     def __init__(self):
@@ -15,8 +16,10 @@ class Xmlhandler:
     def parser(self,h):
         report = pq(h)
         
-        while (report('tr').eq(self.start).find('td').text() != None and report('tr').eq(self.start).find('td').eq(2).text()!=None):
+        while (report('tr').eq(self.start).find('td').text() != '' and report('tr').eq(self.start).find('td').eq(2).text()!='' and report('tr').eq(self.start).find('td').text() != None and report('tr').eq(self.start).find('td').eq(2).text() != None):  # To ensure the case is not NULL or None
+
             self.array.append([report('tr').eq(self.start).find('td').eq(2).text(),report('tr').eq(self.start).find('td').eq(5).text(),report('tr').eq(self.start).find('td').eq(11).text(),report('tr').eq(self.start).find('td').eq(1).text()])      # From the xml file, the tr should start with 16. And 2,5,11,1 stands for Num, SBT, Sev, Title
+            time.sleep(1)
             self.start +=1
             self.count +=1
         return self.array,self.count # We return two values: the 2-array with the case content and the number of new cases.
