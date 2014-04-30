@@ -92,7 +92,7 @@ class LockBot(irc.bot.SingleServerIRCBot):
 			time.sleep(timeout)			
 
 	def showcases(self,c,num=1,timeout=5):
-		print "aaa"
+		print "Printing cases every %d seconds for %d times" %(timeout,num)
 		for n in xrange(0,num):
 			self.showcase(c)
 			time.sleep(timeout)
@@ -104,6 +104,7 @@ class LockBot(irc.bot.SingleServerIRCBot):
 		array1,num = xmlh.parser(content.read().decode("UTF-8"))
 		del array1[0]
 		array = xmlh.sortarr(array1,1)
+		c.privmsg(self.channel,"==================== JP New Case Queue ==================")
 		for i in range(0,num):
 			tmp = '%10s %8s %-12s %s' %(array[i][0],array[i][1],array[i][2],array[i][3])
 			c.privmsg(self.channel,tmp)

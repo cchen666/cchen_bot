@@ -37,7 +37,7 @@ class Xmlhandler:
 
         array.sort()
         for i in range(0,num):
-            print array[i][0]
+            #print array[i][0]
             del array[i][0]
         return array
 
