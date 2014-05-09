@@ -12,6 +12,9 @@ import xmlhandler
 import login
 import gl
 import getpass
+import mythread
+import addthread
+
 
 global botinstance
 botinstance = None
@@ -20,7 +23,7 @@ class LockBot(irc.bot.SingleServerIRCBot):
 	def __init__(self, channel, server, nickname):
 		irc.bot.SingleServerIRCBot.__init__(self, [(server, 6667)], nickname, "lockbot-devel")
 		self.VERSION_NAME = "lockbot version 1.0"
-		self.password = getpass.getpass("Enter %s's salesforce password: " %gl.name)
+	#	self.password = getpass.getpass("Enter %s's salesforce password: " %gl.name)
 		self.channel = channel
 
 	def __del__(self):
@@ -49,25 +52,23 @@ class LockBot(irc.bot.SingleServerIRCBot):
 
 		if cmd == "usage":
 			self.cmd_usage(c)
+
 		elif cmd == "date":
 			self.cmd_date(c)
+
 		elif cmd == "add":
 			if len(cmdline) == 4:
-				user=cmdline[1]
-				num=cmdline[2]
-				timeout=cmdline[3]
-				self.add(c,user,num,string.atoi(timeout))
+				self.add(c,cmdline[1],cmdline[2],string.atoi(cmdline[3]))
+
 		elif cmd == "minus":
 			if len(cmdline) == 4:
-				user=cmdline[1]
-				num=cmdline[2]
-				timeout=cmdline[3]
-				self.minus(c,user,num,string.atoi(timeout))
-		elif cmd == "showcases":
+				self.minus(c,cmdline[1],cmdline[2],string.atoi(cmdline[3]))
+
+		elif cmd == "mtshowcase":
 			if len(cmdline) == 3:
 				num=cmdline[1]
 				timeout=cmdline[2]
-				self.showcases(c,string.atoi(num),string.atoi(timeout))
+				self.mtshowcase(c,string.atoi(num),string.atoi(timeout),self.channel)
 		else:
 			self.print_invalidmsg(c)
 			
@@ -83,31 +84,24 @@ class LockBot(irc.bot.SingleServerIRCBot):
 		c.privmsg(self.channel, self.VERSION_NAME)
 
 	def add(self,c,user,num=0,timeout=5):
-		for n in xrange(0,string.atoi(num)):
-			c.privmsg(self.channel,user+"++")
-			time.sleep(timeout)
-	def minus(self,c,user,num=0,timeout=5):
-		for n in xrange(0,string.atoi(num)):
-			c.privmsg(self.channel,user+"--")
-			time.sleep(timeout)			
+		
+		thread1 = addthread.add_thread(int(num),int(timeout),c,self.channel,"add",user)
+		thread1.daemon = True
+		thread1.start()
 
-	def showcases(self,c,num=1,timeout=5):
-		print "Printing cases every %d seconds for %d times" %(timeout,num)
-		for n in xrange(0,num):
-			self.showcase(c)
-			time.sleep(timeout)
-	def showcase(self,c):
-		# TODO implement it
-		newlogin = login.Login("https://login.salesforce.com/")
-		content = newlogin.autologin(gl.url,gl.name,self.password)
-		xmlh = xmlhandler.Xmlhandler()
-		array1,num = xmlh.parser(content.read().decode("UTF-8"))
-		del array1[0]
-		array = xmlh.sortarr(array1,1)
-		c.privmsg(self.channel,"==================== JP New Case Queue ==================")
-		for i in range(0,num):
-			tmp = '%10s %8s %-12s %s' %(array[i][0],array[i][1],array[i][2],array[i][3])
-			c.privmsg(self.channel,tmp)
+	def minus(self,c,user,num=0,timeout=5):
+		thread1 = addthread.add_thread(int(num),int(timeout),c,self.channel,"minus",user)
+		thread1.daemon = True
+		thread1.start()
+
+	def mtshowcase(self,c,num,interval,channel):
+		try:
+			thread1 = mythread.sc_thread(num,interval,c,self.channel)
+			thread1.daemon = True
+			thread1.start()
+			
+		except(KeyboardInterrupt, SystemExit):
+			print '\n! Received keyboard interrupt, quitting threads.\n'
 
 def termhandler(signum, frame):
 	print("Terminating lockbot")
