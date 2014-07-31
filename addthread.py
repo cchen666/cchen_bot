@@ -12,16 +12,23 @@ class add_thread(threading.Thread):
         self.channel = channel
         self.op = op
         self.user = user
+        self.whitelist = ["cchen","cchenlp","cchen-bot","Chen"]
 
     def run(self):
         if self.op == "add":
-            for i in xrange(self.num):
-                tmp = self.user+"++"
-                self.c.privmsg(self.channel,tmp)
-                time.sleep(self.interval)
+            if self.user not in self.whitelist:
+                self.c.privmsg(self.channel,"Hi dude, if you want to add someone who is not in whitelist, please contact cchen for details")
+            else:
+                for i in xrange(self.num):
+                    tmp = self.user+"++"
+                    self.c.privmsg(self.channel,tmp)
+                    time.sleep(self.interval)
             
         if self.op == "minus":
-            for i in xrange(self.num):
-                tmp = self.user+"--"
-                self.c.privmsg(self.channel,tmp)
-                time.sleep(self.interval)
+            if self.user == "cchen":
+                self.c.privmsg(self.channel,"cchen: Master, some dog is tring to do something evil!")
+            else:
+                for i in xrange(self.num):
+                    tmp = self.user+"--"
+                    self.c.privmsg(self.channel,tmp)
+                    time.sleep(self.interval)

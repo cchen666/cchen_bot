@@ -69,6 +69,10 @@ class LockBot(irc.bot.SingleServerIRCBot):
 				num=cmdline[1]
 				timeout=cmdline[2]
 				self.mtshowcase(c,string.atoi(num),string.atoi(timeout),self.channel)
+		elif cmd == "enforce":
+			if len(cmdline) == 1:
+				case = cmdline[0]
+				self.enforce(c, case, nick)
 		else:
 			self.print_invalidmsg(c)
 			
@@ -103,6 +107,9 @@ class LockBot(irc.bot.SingleServerIRCBot):
 		except(KeyboardInterrupt, SystemExit):
 			print '\n! Received keyboard interrupt, quitting threads.\n'
 
+	def enforce(self, c, case, nick):
+		pass
+	
 def termhandler(signum, frame):
 	print("Terminating lockbot")
 #	global botinstance
